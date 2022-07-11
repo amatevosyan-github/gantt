@@ -542,7 +542,7 @@ var Gantt = (function () {
                 rx: this.corner_radius,
                 ry: this.corner_radius,
                 class: 'bar',
-                style:`stroke-dasharray: ${this.width*1.15}; stroke-dashoffset: ${this.width*1.15*0.2}`,
+                style:`stroke-dasharray: ${this.width}`,
                 append_to: this.bar_group,
             });
 
