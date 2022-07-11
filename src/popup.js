@@ -58,12 +58,10 @@ export default class Popup {
         }
 
         // show
-        this.parent.style.opacity = 1;
         this.parent.classList.add('show')
     }
 
     hide() {
-        this.parent.style.left = 0;
          this.parent.classList.remove('show')
     }
 }

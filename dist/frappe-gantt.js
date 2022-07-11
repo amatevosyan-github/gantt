@@ -542,6 +542,7 @@ var Gantt = (function () {
                 rx: this.corner_radius,
                 ry: this.corner_radius,
                 class: 'bar',
+                style:`stroke-dasharray: ${this.width}`,
                 append_to: this.bar_group,
             });
 
@@ -1018,19 +1019,17 @@ var Gantt = (function () {
                 this.parent.style.left =
                     position_meta.x + (position_meta.width + 10) + 'px';
                 this.parent.style.top = position_meta.y + 'px';
-
                 this.pointer.style.transform = 'rotateZ(90deg)';
                 this.pointer.style.left = '-7px';
                 this.pointer.style.top = '2px';
             }
 
             // show
-            this.parent.style.opacity = 1;
+            this.parent.classList.add('show');
         }
 
         hide() {
-            this.parent.style.opacity = 0;
-            this.parent.style.left = 0;
+             this.parent.classList.remove('show');
         }
     }
 
