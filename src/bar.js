@@ -82,7 +82,7 @@ export default class Bar {
             rx: this.corner_radius,
             ry: this.corner_radius,
             class: 'bar',
-            style:`stroke-dasharray: ${this.width*1.3}; stroke-dashoffset: ${this.width*0.3}`,
+            style:`stroke-dasharray: ${this.width*1.25}; stroke-dashoffset: ${this.width*0.3}`,
             append_to: this.bar_group,
         });
 
