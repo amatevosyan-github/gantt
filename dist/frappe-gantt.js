@@ -366,7 +366,7 @@ var Gantt = (function () {
         attr,
         from,
         to,
-        dur = '0s',
+        dur = '0.4s',
         begin = '0.1s'
     ) {
         const animEl = svgElement.querySelector('animate');
@@ -545,7 +545,6 @@ var Gantt = (function () {
                 append_to: this.bar_group,
             });
 
-            animateSVG(this.$bar, 'width', 0, this.width);
 
             if (this.invalid) {
                 this.$bar.classList.add('bar-invalid');
