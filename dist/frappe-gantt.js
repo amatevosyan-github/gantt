@@ -366,7 +366,7 @@ var Gantt = (function () {
         attr,
         from,
         to,
-        dur = '0.4s',
+        dur = '0s',
         begin = '0.1s'
     ) {
         const animEl = svgElement.querySelector('animate');
