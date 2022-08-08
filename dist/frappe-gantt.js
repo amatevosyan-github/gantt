@@ -1696,7 +1696,9 @@ var Gantt = (function () {
                 } else if (element.classList.contains('right')) {
                     is_resizing_right = true;
                 } else if (element.classList.contains('bar-wrapper')) {
-                    is_dragging = true;
+                    if(element.classList.contains('expandable'))  ; else {
+                       is_dragging = true;
+                   }
                 }
 
                 bar_wrapper.classList.add('active');
