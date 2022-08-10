@@ -1200,6 +1200,7 @@ var Gantt = (function () {
             this.update_view_scale(mode);
             this.setup_dates();
             this.render();
+            this.hide_popup();
             // fire viewmode_change event
             this.trigger_event('view_change', [mode]);
         }
@@ -1690,7 +1691,6 @@ var Gantt = (function () {
 
             $.on(this.$svg, 'mousedown', '.bar-wrapper, .handle', (e, element) => {
                 const bar_wrapper = $.closest('.bar-wrapper', element);
-
                 if (element.classList.contains('left')) {
                     is_resizing_left = true;
                 } else if (element.classList.contains('right')) {
