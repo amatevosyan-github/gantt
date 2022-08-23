@@ -226,13 +226,13 @@ export default class Bar {
                 return this.gantt.get_bar(dep).$bar.getX();
             });
             // child task must not go before parent
-            const valid_x = xs.reduce((prev, curr) => {
-                return x >= curr;
-            }, x);
-            if (!valid_x) {
-                width = null;
-                return;
-            }
+            // const valid_x = xs.reduce((prev, curr) => {
+            //     return x >= curr;
+            // }, x);
+            // if (!valid_x) {
+            //     width = null;
+            //     return;
+            // }
             this.update_attr(bar, 'x', x);
         }
         const divider = {
