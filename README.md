@@ -2,6 +2,7 @@
 
 
 ### Usage
+``js
 var tasks = [
   {
     id: 'Task 1',
@@ -14,6 +15,7 @@ var tasks = [
   },
   ...
 ]
+``js
 var gantt = new Gantt("#gantt", tasks);
 ```
 
