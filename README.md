@@ -18,7 +18,7 @@ var gantt = new Gantt("#gantt", tasks);
 ```
 
 You can also pass various options to the Gantt constructor:
-```js
+
 var gantt = new Gantt("#gantt", tasks, {
     header_height: 50,
     column_width: 30,
