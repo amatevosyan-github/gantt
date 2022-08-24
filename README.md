@@ -1,19 +1,7 @@
 
 
-### Install
-```
-npm install frappe-gantt
-```
 
 ### Usage
-Include it in your HTML:
-```
-<script src="frappe-gantt.min.js"></script>
-<link rel="stylesheet" href="frappe-gantt.css">
-```
-
-And start hacking:
-```js
 var tasks = [
   {
     id: 'Task 1',
