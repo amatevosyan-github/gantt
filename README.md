@@ -17,7 +17,7 @@ var tasks = [
 ]
 
 var gantt = new Gantt("#gantt", tasks);
-``
+
 ```
 
 You can also pass various options to the Gantt constructor:
