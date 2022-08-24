@@ -2,7 +2,7 @@
 
 
 ### Usage
-``
+
 var tasks = [
   {
     id: 'Task 1',
