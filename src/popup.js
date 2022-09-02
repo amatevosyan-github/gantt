@@ -52,16 +52,18 @@ export default class Popup {
             this.parent.style.left =
                 position_meta.x + (position_meta.width + 10) + 'px';
             this.parent.style.top = position_meta.y + 'px';
+
             this.pointer.style.transform = 'rotateZ(90deg)';
             this.pointer.style.left = '-7px';
             this.pointer.style.top = '2px';
         }
 
         // show
-        this.parent.classList.add('show')
+        this.parent.style.opacity = 1;
     }
 
     hide() {
-         this.parent.classList.remove('show')
+        this.parent.style.opacity = 0;
+        this.parent.style.left = 0;
     }
 }
