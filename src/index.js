@@ -721,6 +721,7 @@ export default class Gantt {
                     $bar.owidth = $bar.getWidth();
                     $bar.finaldx = 0;
                 });
+                console.log(bars);
             }
         );
 
@@ -747,7 +748,12 @@ export default class Gantt {
                 } else if (is_resizing_right) {
                     if (parent_bar_id === bar.task.id) {
                         bar.update_bar_position({
+                            x: $bar.ox,
                             width: $bar.owidth + $bar.finaldx,
+                        });
+                    } else {
+                        bar.update_bar_position({
+                            x: $bar.ox,
                         });
                     }
                 } else if (is_dragging) {
@@ -793,12 +799,18 @@ export default class Gantt {
                 console.log('такая связь уже есть');
                 return false;
             }
+            if (child_bar_id === parent_bar_id) {
+                return false;
+            }
 
-            if (['SS', 'FF', 'FS'].includes(new_relation) &&
-                !this.get_all_dependent_tasks(child_bar_id).includes(parent_bar_id)) {
-                    
+            if (
+                [ 'FS'].includes(new_relation) && //'SS', 'FF',
+                !this.get_all_dependent_tasks(child_bar_id).includes(
+                    parent_bar_id
+                )
+            ) {
                 console.log(this.get_all_dependent_tasks(parent_bar_id));
-                console.log(this.get_all_dependent_tasks(child_bar_id))
+                console.log(this.get_all_dependent_tasks(child_bar_id));
                 child_bar.dependencies.push(parent_bar_id);
                 child_bar.relationship_types.push(new_relation);
 

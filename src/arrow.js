@@ -13,7 +13,7 @@ export default class Arrow {
 
     calculate_path() {
         let start_x =
-            this.from_task.$bar.getX() + this.from_task.$bar.getWidth(); // from F to S  // from F to F
+            this.from_task.$bar.getX() + this.from_task.$bar.getWidth();
         if (this.relationship_type === 'SS') {
             start_x = this.from_task.$bar.getX();
         }
@@ -46,8 +46,8 @@ export default class Arrow {
                 this.to_task.task._index +
             this.gantt.options.padding;
 
-        const from_is_below_to =
-            this.from_task.task._index > this.to_task.task._index;
+        const from_is_below_to = start_y > end_y;
+        console.log(from_is_below_to);
         const curve = this.gantt.options.arrow_curve;
         const clockwise = from_is_below_to ? 1 : 0;
         const curve_y = from_is_below_to ? -curve : curve;
@@ -55,28 +55,38 @@ export default class Arrow {
             ? end_y + this.gantt.options.arrow_curve
             : end_y - this.gantt.options.arrow_curve;
 
-        if (
-            this.relationship_type === 'FS' ||
-            this.relationship_type === undefined
-        ) {
+        if (this.relationship_type === 'FS') {
             this.path = `
                 M ${start_x} ${start_y}
-                h 5
-                a ${curve} ${curve} 0 0 1 ${curve} ${curve}
+                h 4
+                a ${curve} ${curve} 0 0 1  ${curve} ${curve}
                 V ${offset}
                 a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
                 L ${end_x} ${end_y}
                 m -4 -4
                 l 4 4
                 l -4 4`;
-
+            if (from_is_below_to) {
+                this.path = `
+                M ${start_x} ${start_y}
+                h 4
+                a ${curve} ${curve} 0 0 0  ${curve} -${curve}
+                V ${offset}
+                a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
+                L ${end_x} ${end_y}
+                m -4 -4
+                l 4 4
+                l -4 4`;
+            }
             if (
                 this.from_task.$bar.getX() +
                     this.from_task.$bar.getWidth() +
                     this.gantt.options.padding >
                 this.to_task.$bar.getX()
             ) {
-                const down_1 = this.gantt.options.padding - curve;
+                const down_1 = from_is_below_to
+                    ? -this.gantt.options.padding + curve
+                    : this.gantt.options.padding - curve;
                 const down_2 =
                     this.to_task.$bar.getY() +
                     this.to_task.$bar.getHeight() / 2 -
@@ -84,19 +94,35 @@ export default class Arrow {
                 const left =
                     this.to_task.$bar.getX() - this.gantt.options.padding;
                 this.path = `
-                M ${start_x} ${start_y}
-                h 5
-                a ${curve} ${curve} 0 0 1 ${curve} ${curve}
-                v ${down_1}
-                a ${curve} ${curve} 0 0 1 -${curve} ${curve}
-                H ${left}
-                a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
-                V ${down_2}
-                a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
-                L ${end_x} ${end_y}
-                m -4 -4
-                l 4 4
-                l -4 4`;
+                        M ${start_x} ${start_y}
+                        h 4
+                        a ${curve} ${curve} 0 0 1 ${curve} ${curve}
+                        v ${down_1}
+                        a ${curve} ${curve} 0 0 1 -${curve} ${curve}
+                        H ${left}
+                        a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
+                        V ${down_2}
+                        a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
+                        L ${end_x} ${end_y}
+                        m -4 -4
+                        l 4 4
+                        l -4 4`;
+                if (from_is_below_to) {
+                    this.path = `
+                        M ${start_x} ${start_y}
+                        h 4
+                        a ${curve} ${curve} 0 0 0 ${curve} -${curve}
+                        v ${down_1}
+                        a ${curve} ${curve} 0 0 0 -${curve} -${curve}
+                        H ${left}
+                        a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
+                        V ${down_2}
+                        a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
+                        L ${end_x} ${end_y}
+                        m -4 -4
+                        l 4 4
+                        l -4 4`;
+                }
             }
         }
 
@@ -110,12 +136,25 @@ export default class Arrow {
             m -4 -4
             l 4 4
             l -4 4`;
+            if (from_is_below_to) {
+                this.path = `
+            M ${start_x} ${start_y}
+            a ${curve} ${curve} 0 0 1 -${curve} -${curve}
+            V ${offset}
+            a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
+            L ${end_x} ${end_y}
+                m -4 -4
+                l 4 4
+                l -4 4`;
+            }
 
             if (
                 this.to_task.$bar.getX() <
                 this.from_task.$bar.getX() + this.gantt.options.padding - 20
             ) {
-                const down_1 = this.gantt.options.padding - curve;
+                const down_1 = from_is_below_to
+                    ? -this.gantt.options.padding + 2 * curve
+                    : this.gantt.options.padding - curve;
                 const down_2 =
                     this.to_task.$bar.getY() +
                     this.to_task.$bar.getHeight() / 2 -
@@ -136,11 +175,28 @@ export default class Arrow {
                 m -4 -4
                 l 4 4
                 l -4 4`;
+                if (from_is_below_to) {
+                    this.path = `
+                M ${start_x} ${start_y}
+                a ${curve} ${curve} 0 0 1 -${curve} -${curve}
+                v ${down_1}
+                a ${curve} ${curve} 0 0 0 -${curve} -${curve}
+                H ${left}
+                a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
+                V ${down_2}
+                a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
+                L ${end_x} ${end_y}
+                m -4 -4
+                l 4 4
+                l -4 4`;
+                }
             }
         }
 
         if (this.relationship_type === 'FF') {
-            const down_1 = this.gantt.options.padding - curve;
+            const down_1 = from_is_below_to
+                ? -this.gantt.options.padding + 2 * curve
+                : this.gantt.options.padding - curve;
             const down_2 =
                 this.to_task.$bar.getY() +
                 this.to_task.$bar.getHeight() / 2 -
@@ -152,7 +208,7 @@ export default class Arrow {
 
             this.path = `
                         M ${start_x} ${start_y}
-                        h 5
+                        h 4
                         a ${curve} ${curve} 0 0 1 ${curve} ${curve}
                         v ${down_1}
                         a ${curve} ${curve} 0 0 1 -${curve} ${curve}
@@ -164,6 +220,22 @@ export default class Arrow {
                         m 4 -4
                         l -4 4
                         l 4 4`;
+            if (from_is_below_to) {
+                this.path = `
+                        M ${start_x} ${start_y}
+                        h 4
+                        a ${curve} ${curve} 0 0 0 ${curve} -${curve}
+                        v ${down_1}
+                        a ${curve} ${curve} 0 0 0 -${curve} -${curve}
+                        H ${right + 5}
+                        a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
+                        V ${down_2}
+                        a ${curve} ${curve} 0 0 0 -${curve} ${curve_y}
+                        L ${end_x} ${end_y}
+                        m 4 -4
+                        l -4 4
+                        l 4 4`;
+            }
 
             if (
                 this.to_task.$bar.getX() + this.to_task.$bar.getWidth() >
@@ -171,7 +243,7 @@ export default class Arrow {
             ) {
                 this.path = `
                         M ${start_x} ${start_y}
-                        h 5
+                        h 4
                         a ${curve} ${curve} 0 0 1 ${curve} ${curve}
                         v ${down_1}
                         a ${curve} ${curve} 0 0 0 ${curve} ${curve}
@@ -183,6 +255,22 @@ export default class Arrow {
                         m 4 -4
                         l -4 4
                         l 4 4`;
+                if (from_is_below_to) {
+                    this.path = `
+                        M ${start_x} ${start_y}
+                        h 4
+                        a ${curve} ${curve} 0 0 0 ${curve} -${curve}
+                        v ${down_1}
+                        a ${curve} ${curve} 0 0 1 ${curve} -${curve}
+                        H ${right - 5}
+                        a ${curve} ${curve} 0 0 0 ${curve} ${curve_y}
+                        V ${down_2}
+                        a ${curve} ${curve} 0 0 0 -${curve} ${curve_y}
+                        L ${end_x} ${end_y}
+                        m 4 -4
+                        l -4 4
+                        l 4 4`;
+                }
             }
 
             if (
@@ -198,15 +286,24 @@ export default class Arrow {
                         M ${start_x} ${start_y}
                         H ${right - 1}
                         a ${curve} ${curve} 0 0 1 ${curve} ${curve}
-    
-                        V ${end_y - 5}
-    
+                        V ${down_2}
                         a ${curve} ${curve} 0 0 1 -${curve} ${curve_y}
-    
                         L ${end_x} ${end_y}
                         m 4 -4
                         l -4 4
                         l 4 4`;
+                if (from_is_below_to) {
+                    this.path = `
+                        M ${start_x} ${start_y}
+                        H ${right - 1}
+                        a ${curve} ${curve} 0 0 0 ${curve} -${curve}
+                        V ${down_2}
+                        a ${curve} ${curve} 0 0 0 -${curve} ${curve_y}
+                        L ${end_x} ${end_y}
+                        m 4 -4
+                        l -4 4
+                        l 4 4`;
+                }
             }
         }
     }

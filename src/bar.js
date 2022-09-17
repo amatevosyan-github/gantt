@@ -32,8 +32,8 @@ export default class Bar {
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
-                this.duration *
-                (this.task.progress / 100) || 0;
+            this.duration *
+            (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id,
@@ -252,21 +252,64 @@ export default class Bar {
         });
     }
 
-    update_bar_position({ x = null, width = null }) {
+    update_bar_position({ x = null, width = null, handle = null }) {
+        console.log(x, width);
         const bar = this.$bar;
+        console.log(this);
         if (x) {
             // get all x values of parent task
             const xs = this.task.dependencies.map((dep) => {
                 return this.gantt.get_bar(dep).$bar.getX();
             });
+            // get all x + width values of parent task
+            const x_of_end_parents = this.task.dependencies.map((dep) => {
+                return (
+                    this.gantt.get_bar(dep).$bar.getX() +
+                    this.gantt.get_bar(dep).$bar.getWidth()
+                );
+            });
             // child task must not go before parent
-            const valid_x = xs.reduce((prev, curr) => {
-                return x >= curr;
-            }, x);
-            if (!valid_x) {
-                width = null;
-                return;
+            if (this.task.relationship_types.includes('SS')) {
+                console.log(this.task.dependencies);
+                const valid_x = xs.reduce((prev, curr) => {
+                    return x >= curr;
+                }, x);
+                if (!valid_x) {
+                    width = null;
+                    return;
+                }
             }
+            if (this.task.relationship_types.includes('FS')) {
+                console.log(this.task.dependencies);
+                const valid_x = x_of_end_parents.reduce((prev, curr) => {
+                    return x >= curr;
+                }, x);
+                if (!valid_x) {
+                    width = null;
+                    return;
+                }
+            }
+            if (this.task.relationship_types.includes('FF')) {
+                console.log('x_of_end_parents', x_of_end_parents);
+                console.log(
+                    'x + this.$bar.getWidth()',
+                    x + this.$bar.getWidth()
+                );
+                const valid_x = x_of_end_parents.reduce((prev, curr) => {
+                    console.log('curr', curr);
+                    console.log(
+                        'curr >= x + this.$bar.getWidth()',
+                        curr >= x + this.$bar.getWidth()
+                    );
+                    return curr >= x + this.$bar.getWidth();
+                }, x);
+                console.log('valid_x', valid_x);
+                if (!valid_x) {
+                    width = null;
+                    return;
+                }
+            }
+
             this.update_attr(bar, 'x', x);
         }
         if (width && width >= this.gantt.options.column_width) {
@@ -445,6 +488,7 @@ export default class Bar {
     }
 
     update_arrow_position() {
+        console.log(this.arrows);
         this.arrows = this.arrows || [];
         for (let arrow of this.arrows) {
             arrow.update();
