@@ -46,6 +46,7 @@ export default class Arrow {
                 this.to_task.task._index +
             this.gantt.options.padding;
 
+        const arrow_padding = 8;
         const from_is_below_to = start_y > end_y;
         console.log(from_is_below_to);
         const curve = this.gantt.options.arrow_curve;
@@ -56,73 +57,90 @@ export default class Arrow {
             : end_y - this.gantt.options.arrow_curve;
 
         if (this.relationship_type === 'FS') {
-            this.path = `
-                M ${start_x} ${start_y}
-                h 4
-                a ${curve} ${curve} 0 0 1  ${curve} ${curve}
-                V ${offset}
-                a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
-                L ${end_x} ${end_y}
-                m -4 -4
-                l 4 4
-                l -4 4`;
-            if (from_is_below_to) {
-                this.path = `
-                M ${start_x} ${start_y}
-                h 4
-                a ${curve} ${curve} 0 0 0  ${curve} -${curve}
-                V ${offset}
-                a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
-                L ${end_x} ${end_y}
-                m -4 -4
-                l 4 4
-                l -4 4`;
-            }
+            this.lines = [
+                createSVG('line', {
+                    x1: start_x,
+                    y1: start_y,
+                    x2: start_x + arrow_padding,
+                    y2: start_y,
+                }),
+                createSVG('line', {
+                    x1: start_x + arrow_padding,
+                    y1: start_y,
+                    x2: start_x + arrow_padding,
+                    y2: end_y,
+                }),
+                createSVG('line', {
+                    x1: start_x + arrow_padding,
+                    y1: end_y,
+                    x2: end_x,
+                    y2: end_y,
+                }),
+                createSVG('line', {
+                    x1: end_x,
+                    y1: end_y,
+                    x2: end_x - 4,
+                    y2: end_y + 4,
+                }),
+                createSVG('line', {
+                    x1: end_x,
+                    y1: end_y,
+                    x2: end_x - 4,
+                    y2: end_y - 4,
+                }),
+            ];
             if (
+                // конец родительского бара >= начало дочернего
                 this.from_task.$bar.getX() +
                     this.from_task.$bar.getWidth() +
                     this.gantt.options.padding >
                 this.to_task.$bar.getX()
             ) {
-                const down_1 = from_is_below_to
-                    ? -this.gantt.options.padding + curve
-                    : this.gantt.options.padding - curve;
-                const down_2 =
-                    this.to_task.$bar.getY() +
-                    this.to_task.$bar.getHeight() / 2 -
-                    curve_y;
-                const left =
-                    this.to_task.$bar.getX() - this.gantt.options.padding;
-                this.path = `
-                        M ${start_x} ${start_y}
-                        h 4
-                        a ${curve} ${curve} 0 0 1 ${curve} ${curve}
-                        v ${down_1}
-                        a ${curve} ${curve} 0 0 1 -${curve} ${curve}
-                        H ${left}
-                        a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
-                        V ${down_2}
-                        a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
-                        L ${end_x} ${end_y}
-                        m -4 -4
-                        l 4 4
-                        l -4 4`;
-                if (from_is_below_to) {
-                    this.path = `
-                        M ${start_x} ${start_y}
-                        h 4
-                        a ${curve} ${curve} 0 0 0 ${curve} -${curve}
-                        v ${down_1}
-                        a ${curve} ${curve} 0 0 0 -${curve} -${curve}
-                        H ${left}
-                        a ${curve} ${curve} 0 0 ${clockwise} -${curve} ${curve_y}
-                        V ${down_2}
-                        a ${curve} ${curve} 0 0 ${clockwise} ${curve} ${curve_y}
-                        L ${end_x} ${end_y}
-                        m -4 -4
-                        l 4 4
-                        l -4 4`;
-                }
+                console.log(11);
+                this.lines = [
+                    createSVG('line', {
+                        x1: start_x,
+                        y1: start_y,
+                        x2: start_x + arrow_padding,
+                        y2: start_y,
+                    }),
+                    createSVG('line', {
+                        x1: start_x + arrow_padding,
+                        y1: start_y,
+                        x2: start_x + arrow_padding,
+                        y2: end_y - this.gantt.options.padding,
+                    }),
+                    createSVG('line', {
+                        x1: start_x + arrow_padding,
+                        y1: end_y - this.gantt.options.padding,
+                        x2: end_x - arrow_padding,
+                        y2: end_y - this.gantt.options.padding,
+                    }),
+                    createSVG('line', {
+                        x1: end_x - arrow_padding,
+                        y1: end_y - this.gantt.options.padding,
+                        x2: end_x - arrow_padding,
+                        y2: end_y,
+                    }),
+                    createSVG('line', {
+                        x1: end_x - arrow_padding,
+                        y1: end_y,
+                        x2: end_x,
+                        y2: end_y,
+                    }),
+                    createSVG('line', {
+                        x1: end_x,
+                        y1: end_y,
+                        x2: end_x - 4,
+                        y2: end_y + 4,
+                    }),
+                    createSVG('line', {
+                        x1: end_x,
+                        y1: end_y,
+                        x2: end_x - 4,
+                        y2: end_y - 4,
+                    }),
+                ];
             }
         }
 
@@ -306,18 +324,34 @@ export default class Arrow {
                 }
             }
         }
+
+        this.lines.forEach((line) => {
+            line.addEventListener('mouseover', () => {
+                line.parentNode.classList.add('hover');
+            });
+        });
+        this.lines.forEach((line) => {
+            line.addEventListener('mouseleave', () => {
+                line.parentNode.classList.remove('hover');
+            });
+        });
     }
 
     draw() {
-        this.element = createSVG('path', {
-            d: this.path,
+        this.element = createSVG('g', {
             'data-from': this.from_task.task.id,
             'data-to': this.to_task.task.id,
+        });
+        this.lines.forEach((line) => {
+            this.element.appendChild(line);
         });
     }
 
     update() {
         this.calculate_path();
-        this.element.setAttribute('d', this.path);
+        this.element.innerHTML = '';
+        this.lines.forEach((line) => {
+            this.element.appendChild(line);
+        });
     }
 }
