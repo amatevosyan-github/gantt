@@ -32,8 +32,8 @@ export default class Bar {
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
-            this.duration *
-            (this.task.progress / 100) || 0;
+                this.duration *
+                (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id,
@@ -253,9 +253,9 @@ export default class Bar {
     }
 
     update_bar_position({ x = null, width = null, handle = null }) {
-        console.log(x, width);
         const bar = this.$bar;
-        console.log(this);
+        const delay = this.task.relationship_options.delay;
+        console.log(delay);
         if (x) {
             // get all x values of parent task
             const xs = this.task.dependencies.map((dep) => {
@@ -269,44 +269,61 @@ export default class Bar {
                 );
             });
             // child task must not go before parent
-            if (this.task.relationship_types.includes('SS')) {
-                console.log(this.task.dependencies);
-                const valid_x = xs.reduce((prev, curr) => {
-                    return x >= curr;
-                }, x);
-                if (!valid_x) {
-                    width = null;
-                    return;
+            if (this.task.relationship_options.hard.includes(true)) {
+                if (this.task.relationship_options.type.includes('SS')) {
+                    console.log(this.task.dependencies);
+                    const valid_x = xs.reduce((prev, curr) => {
+                        return x >= curr;
+                    }, x);
+                    if (!valid_x) {
+                        width = null;
+                        return;
+                    }
                 }
-            }
-            if (this.task.relationship_types.includes('FS')) {
-                console.log(this.task.dependencies);
-                const valid_x = x_of_end_parents.reduce((prev, curr) => {
-                    return x >= curr;
-                }, x);
-                if (!valid_x) {
-                    width = null;
-                    return;
+                if (this.task.relationship_options.type.includes('FS')) {
+                    if (this.task.relationship_options.asap.includes(true)) {
+                        const valid_x = x_of_end_parents.reduce(
+                            (prev, curr) => {
+                                return (x = curr + gantt_chart.options.column_width * 1);
+                            },
+                            x
+                        );
+                        if (!valid_x) {
+                            width = null;
+                            return;
+                        }
+                    } else {
+                        const valid_x = x_of_end_parents.reduce(
+                            (prev, curr) => {
+                                return x >= curr;
+                            },
+                            x
+                        );
+                        if (!valid_x) {
+                            width = null;
+                            return;
+                        }
+                    }
                 }
-            }
-            if (this.task.relationship_types.includes('FF')) {
-                console.log('x_of_end_parents', x_of_end_parents);
-                console.log(
-                    'x + this.$bar.getWidth()',
-                    x + this.$bar.getWidth()
-                );
-                const valid_x = x_of_end_parents.reduce((prev, curr) => {
-                    console.log('curr', curr);
+                if (this.task.relationship_options.type.includes('FF')) {
+                    console.log('x_of_end_parents', x_of_end_parents);
                     console.log(
-                        'curr >= x + this.$bar.getWidth()',
-                        curr >= x + this.$bar.getWidth()
+                        'x + this.$bar.getWidth()',
+                        x + this.$bar.getWidth()
                     );
-                    return curr >= x + this.$bar.getWidth();
-                }, x);
-                console.log('valid_x', valid_x);
-                if (!valid_x) {
-                    width = null;
-                    return;
+                    const valid_x = x_of_end_parents.reduce((prev, curr) => {
+                        console.log('curr', curr);
+                        console.log(
+                            'curr >= x + this.$bar.getWidth()',
+                            curr >= x + this.$bar.getWidth()
+                        );
+                        return curr >= x + this.$bar.getWidth();
+                    }, x);
+                    console.log('valid_x', valid_x);
+                    if (!valid_x) {
+                        width = null;
+                        return;
+                    }
                 }
             }
 

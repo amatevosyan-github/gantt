@@ -32,7 +32,13 @@ var tasks = [
 				end: '2018-10-08',
 				name: 'Redesign website',
 				id: "Task 0",
-				progress: 20
+				progress: 20,
+				relationship_options: {
+					type: '',
+					hard: [,],
+					delay: [,],
+					asap: [,],
+				}
 			},
 			{
 				start: '2018-10-03',
@@ -41,7 +47,12 @@ var tasks = [
 				id: "Task 1",
 				progress: 5,
 				dependencies: 'Task 0',
-				relationship_types: 'FS',
+				relationship_options: {
+					type: 'FS',
+					hard: [false,],
+					delay: [0,],
+					asap: [true,],
+				}
 			},
 			{
 				start: '2018-10-04',
@@ -50,8 +61,12 @@ var tasks = [
 				id: "Task 2",
 				progress: 10,
 				dependencies: 'Task 0',
-				relationship_types: 'FS'
-
+				relationship_options: {
+					type: 'FS',
+					hard: [true,],
+					delay: [0,],
+					asap: [false,],
+				}
 			},
 			{
 				start: '2018-10-08',
@@ -59,6 +74,13 @@ var tasks = [
 				name: 'Review',
 				id: "Task 3",
 				progress: 5,
+				dependencies: 'Task 0',
+				relationship_options: {
+					type: 'FS',
+					hard: [true,],
+					delay: [0,],
+					asap: [true,],
+				}
 
 			},
 			{
@@ -67,7 +89,9 @@ var tasks = [
 				name: 'Deploy',
 				id: "Task 4",
 				progress: 0,
+				relationship_options: {
 
+				}
 			},
 			{
 				start: '2018-10-11',
@@ -76,6 +100,9 @@ var tasks = [
 				id: "Task 5",
 				progress: 0,
 				custom_class: 'bar-milestone',
+				relationship_options: {
+
+				}
 			},
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
@@ -90,6 +117,9 @@ var tasks = [
 			},
 			on_view_change: function(mode) {
 				console.log(mode);
+			},
+			on_delete_arrow: function(mes) {
+				console.log(mes);
 			},
 			view_mode: 'Day',
 			language: 'en'

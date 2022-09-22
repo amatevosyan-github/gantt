@@ -147,17 +147,17 @@ export default class Gantt {
 
             // relationship_types
             if (
-                typeof task.relationship_types === 'string' ||
-                !task.relationship_types
+                typeof task.relationship_options.type === 'string' ||
+                !task.relationship_options.type
             ) {
                 let relationship_types = [];
-                if (task.relationship_types) {
-                    relationship_types = task.relationship_types
+                if (task.relationship_options.type) {
+                    relationship_types = task.relationship_options.type
                         .split(',')
                         .map((d) => d.trim())
                         .filter((d) => d);
                 }
-                task.relationship_types = relationship_types;
+                task.relationship_options.type = relationship_types;
             }
 
             // uids
@@ -605,7 +605,7 @@ export default class Gantt {
                         this,
                         this.bars[dependency._index], // from_task
                         this.bars[task._index], // to_task
-                        task.relationship_types[task_index]
+                        task.relationship_options.type[task_index]
                     );
                     this.layers.arrow.appendChild(arrow.element);
                     return arrow;
@@ -660,6 +660,7 @@ export default class Gantt {
             this.options.popup_trigger,
             '.grid-row, .grid-header',
             () => {
+                console.log('bind_grid_click');
                 this.unselect_all();
                 this.hide_popup();
             }
@@ -809,10 +810,12 @@ export default class Gantt {
                     parent_bar_id
                 )
             ) {
-                console.log(this.get_all_dependent_tasks(parent_bar_id));
-                console.log(this.get_all_dependent_tasks(child_bar_id));
                 child_bar.dependencies.push(parent_bar_id);
-                child_bar.relationship_types.push(new_relation);
+                child_bar.relationship_options.type.push(new_relation);
+                child_bar.relationship_options.hard.push(true);
+                child_bar.relationship_options.delay.push(0);
+                child_bar.relationship_options.asap.push(new_relation);
+
 
                 gantt_chart.trigger_event('new_depndency', [
                     this.get_task(parent_bar_id),

@@ -30,7 +30,7 @@ export default class Arrow {
             this.gantt.options.header_height +
             this.gantt.options.bar_height +
             (this.gantt.options.padding + this.gantt.options.bar_height) *
-                this.from_task.task._index +
+            this.from_task.task._index +
             this.gantt.options.padding -
             this.from_task.$bar.getHeight() / 2;
 
@@ -43,12 +43,11 @@ export default class Arrow {
             this.gantt.options.header_height +
             this.gantt.options.bar_height / 2 +
             (this.gantt.options.padding + this.gantt.options.bar_height) *
-                this.to_task.task._index +
+            this.to_task.task._index +
             this.gantt.options.padding;
 
         const arrow_padding = 8;
         const from_is_below_to = start_y > end_y;
-        console.log(from_is_below_to);
         const curve = this.gantt.options.arrow_curve;
         const clockwise = from_is_below_to ? 1 : 0;
         const curve_y = from_is_below_to ? -curve : curve;
@@ -92,55 +91,101 @@ export default class Arrow {
             if (
                 // конец родительского бара >= начало дочернего
                 this.from_task.$bar.getX() +
-                    this.from_task.$bar.getWidth() +
-                    this.gantt.options.padding >
+                this.from_task.$bar.getWidth() +
+                this.gantt.options.padding >
                 this.to_task.$bar.getX()
             ) {
-                console.log(11);
-                this.lines = [
-                    createSVG('line', {
-                        x1: start_x,
-                        y1: start_y,
-                        x2: start_x + arrow_padding,
-                        y2: start_y,
-                    }),
-                    createSVG('line', {
-                        x1: start_x + arrow_padding,
-                        y1: start_y,
-                        x2: start_x + arrow_padding,
-                        y2: end_y - this.gantt.options.padding,
-                    }),
-                    createSVG('line', {
-                        x1: start_x + arrow_padding,
-                        y1: end_y - this.gantt.options.padding,
-                        x2: end_x - arrow_padding,
-                        y2: end_y - this.gantt.options.padding,
-                    }),
-                    createSVG('line', {
-                        x1: end_x - arrow_padding,
-                        y1: end_y - this.gantt.options.padding,
-                        x2: end_x - arrow_padding,
-                        y2: end_y,
-                    }),
-                    createSVG('line', {
-                        x1: end_x - arrow_padding,
-                        y1: end_y,
-                        x2: end_x,
-                        y2: end_y,
-                    }),
-                    createSVG('line', {
-                        x1: end_x,
-                        y1: end_y,
-                        x2: end_x - 4,
-                        y2: end_y + 4,
-                    }),
-                    createSVG('line', {
-                        x1: end_x,
-                        y1: end_y,
-                        x2: end_x - 4,
-                        y2: end_y - 4,
-                    }),
-                ];
+                if (from_is_below_to) {
+                    this.lines = [
+                        createSVG('line', {
+                            x1: start_x,
+                            y1: start_y,
+                            x2: start_x + arrow_padding,
+                            y2: start_y,
+                        }),
+                        createSVG('line', {
+                            x1: start_x + arrow_padding,
+                            y1: start_y,
+                            x2: start_x + arrow_padding,
+                            y2: end_y + this.gantt.options.padding,
+                        }),
+                        createSVG('line', {
+                            x1: start_x + arrow_padding,
+                            y1: end_y + this.gantt.options.padding,
+                            x2: end_x - arrow_padding,
+                            y2: end_y + this.gantt.options.padding,
+                        }),
+                        createSVG('line', {
+                            x1: end_x - arrow_padding,
+                            y1: end_y + this.gantt.options.padding,
+                            x2: end_x - arrow_padding,
+                            y2: end_y,
+                        }),
+                        createSVG('line', {
+                            x1: end_x - arrow_padding,
+                            y1: end_y,
+                            x2: end_x,
+                            y2: end_y,
+                        }),
+                        createSVG('line', {
+                            x1: end_x,
+                            y1: end_y,
+                            x2: end_x - 4,
+                            y2: end_y + 4,
+                        }),
+                        createSVG('line', {
+                            x1: end_x,
+                            y1: end_y,
+                            x2: end_x - 4,
+                            y2: end_y - 4,
+                        }),
+                    ];
+                } else {
+                    this.lines = [
+                        createSVG('line', {
+                            x1: start_x,
+                            y1: start_y,
+                            x2: start_x + arrow_padding,
+                            y2: start_y,
+                        }),
+                        createSVG('line', {
+                            x1: start_x + arrow_padding,
+                            y1: start_y,
+                            x2: start_x + arrow_padding,
+                            y2: end_y - this.gantt.options.padding,
+                        }),
+                        createSVG('line', {
+                            x1: start_x + arrow_padding,
+                            y1: end_y - this.gantt.options.padding,
+                            x2: end_x - arrow_padding,
+                            y2: end_y - this.gantt.options.padding,
+                        }),
+                        createSVG('line', {
+                            x1: end_x - arrow_padding,
+                            y1: end_y - this.gantt.options.padding,
+                            x2: end_x - arrow_padding,
+                            y2: end_y,
+                        }),
+                        createSVG('line', {
+                            x1: end_x - arrow_padding,
+                            y1: end_y,
+                            x2: end_x,
+                            y2: end_y,
+                        }),
+                        createSVG('line', {
+                            x1: end_x,
+                            y1: end_y,
+                            x2: end_x - 4,
+                            y2: end_y + 4,
+                        }),
+                        createSVG('line', {
+                            x1: end_x,
+                            y1: end_y,
+                            x2: end_x - 4,
+                            y2: end_y - 4,
+                        }),
+                    ];
+                }
             }
         }
 
@@ -294,9 +339,9 @@ export default class Arrow {
             if (
                 Math.abs(
                     this.to_task.$bar.getX() +
-                        this.to_task.$bar.getWidth() -
-                        (this.from_task.$bar.getX() +
-                            this.from_task.$bar.getWidth())
+                    this.to_task.$bar.getWidth() -
+                    (this.from_task.$bar.getX() +
+                        this.from_task.$bar.getWidth())
                 ) < 9
             ) {
                 right = start_x > end_x ? start_x + 5 : end_x + 5;
@@ -328,6 +373,20 @@ export default class Arrow {
         this.lines.forEach((line) => {
             line.addEventListener('mouseover', () => {
                 line.parentNode.classList.add('hover');
+            });
+            line.addEventListener('click', () => {
+                const parent_bar = line.parentNode.dataset.from;
+                console.log(parent_bar);
+                console.log(this.to_task.task.dependencies);
+                const index_of_task =
+                    this.to_task.task.dependencies.indexOf(parent_bar);
+                console.log(index_of_task);
+                this.to_task.task.dependencies.splice(index_of_task, 1);
+                this.to_task.task.relationship_options.type.splice(
+                    index_of_task,
+                    1
+                );
+                gantt_chart.refresh(gantt_chart.tasks);
             });
         });
         this.lines.forEach((line) => {
