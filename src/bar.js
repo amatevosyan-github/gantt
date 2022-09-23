@@ -254,8 +254,7 @@ export default class Bar {
 
     update_bar_position({ x = null, width = null, handle = null }) {
         const bar = this.$bar;
-        const delay = this.task.relationship_options.delay;
-        console.log(delay);
+
         if (x) {
             // get all x values of parent task
             const xs = this.task.dependencies.map((dep) => {
@@ -282,9 +281,21 @@ export default class Bar {
                 }
                 if (this.task.relationship_options.type.includes('FS')) {
                     if (this.task.relationship_options.asap.includes(true)) {
+                        const delay =
+                            this.task.relationship_options.delay.reduce(
+                                (prev, curr) => {
+                                    if (curr >= prev) {
+                                        return curr;
+                                    }
+                                },
+                                0
+                            );
+                            console.log('delay', delay);
                         const valid_x = x_of_end_parents.reduce(
                             (prev, curr) => {
-                                return (x = curr + gantt_chart.options.column_width * 1);
+                                return (x =
+                                    curr +
+                                    gantt_chart.options.column_width * delay);
                             },
                             x
                         );

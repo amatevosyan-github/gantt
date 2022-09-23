@@ -74,12 +74,12 @@ var tasks = [
 				name: 'Review',
 				id: "Task 3",
 				progress: 5,
-				dependencies: 'Task 0',
+				dependencies: 'Task 0, Task 4',
 				relationship_options: {
-					type: 'FS',
-					hard: [true,],
-					delay: [0,],
-					asap: [true,],
+					type: 'FS, FS',
+					hard: [true, true],
+					delay: [2, 4],
+					asap: [true, true],
 				}
 
 			},
@@ -90,7 +90,10 @@ var tasks = [
 				id: "Task 4",
 				progress: 0,
 				relationship_options: {
-
+					type: '',
+					hard: [],
+					delay: [],
+					asap: [],
 				}
 			},
 			{
@@ -101,7 +104,10 @@ var tasks = [
 				progress: 0,
 				custom_class: 'bar-milestone',
 				relationship_options: {
-
+					type: '',
+					hard: [],
+					delay: [],
+					asap: [],
 				}
 			},
 		]

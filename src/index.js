@@ -805,7 +805,7 @@ export default class Gantt {
             }
 
             if (
-                [ 'FS'].includes(new_relation) && //'SS', 'FF',
+                ['FS'].includes(new_relation) && //'SS', 'FF',
                 !this.get_all_dependent_tasks(child_bar_id).includes(
                     parent_bar_id
                 )
@@ -814,8 +814,7 @@ export default class Gantt {
                 child_bar.relationship_options.type.push(new_relation);
                 child_bar.relationship_options.hard.push(true);
                 child_bar.relationship_options.delay.push(0);
-                child_bar.relationship_options.asap.push(new_relation);
-
+                child_bar.relationship_options.asap.push(true);
 
                 gantt_chart.trigger_event('new_depndency', [
                     this.get_task(parent_bar_id),
