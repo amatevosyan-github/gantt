@@ -624,7 +624,7 @@ var Gantt = (function () {
 
         draw_relation_dots() {
             if (this.invalid) return;
-
+            console.log('draw_relation_dots', this);
             const bar = this.$bar;
             const dot_diameter = 8;
 
@@ -684,7 +684,6 @@ var Gantt = (function () {
                     // just finished a move action, wait for a few seconds
                     return;
                 }
-
                 this.gantt.trigger_event('click', [this.task]);
             });
         }
@@ -2279,7 +2278,7 @@ var Gantt = (function () {
                     child_bar.relationship_options.delay.push(0);
                     child_bar.relationship_options.asap.push(true);
 
-                    gantt_chart.trigger_event('new_depndency', [
+                    this.trigger_event('new_depndency', [
                         this.get_task(parent_bar_id),
                         this.get_task(child_bar_id),
                         new_relation,

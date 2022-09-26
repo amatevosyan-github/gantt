@@ -164,7 +164,7 @@ export default class Bar {
 
     draw_relation_dots() {
         if (this.invalid) return;
-
+        console.log('draw_relation_dots', this);
         const bar = this.$bar;
         const dot_diameter = 8;
 
@@ -224,7 +224,6 @@ export default class Bar {
                 // just finished a move action, wait for a few seconds
                 return;
             }
-
             this.gantt.trigger_event('click', [this.task]);
         });
     }

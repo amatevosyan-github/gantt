@@ -816,7 +816,7 @@ export default class Gantt {
                 child_bar.relationship_options.delay.push(0);
                 child_bar.relationship_options.asap.push(true);
 
-                gantt_chart.trigger_event('new_depndency', [
+                this.trigger_event('new_depndency', [
                     this.get_task(parent_bar_id),
                     this.get_task(child_bar_id),
                     new_relation,
