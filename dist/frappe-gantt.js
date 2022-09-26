@@ -492,8 +492,8 @@ var Gantt = (function () {
             this.width = this.gantt.options.column_width * this.duration;
             this.progress_width =
                 this.gantt.options.column_width *
-                    this.duration *
-                    (this.task.progress / 100) || 0;
+                this.duration *
+                (this.task.progress / 100) || 0;
             this.group = createSVG('g', {
                 class: 'bar-wrapper ' + (this.task.custom_class || ''),
                 'data-id': this.task.id,
@@ -623,7 +623,7 @@ var Gantt = (function () {
         }
 
         draw_relation_dots() {
-            if (this.invalid) return;
+            if (this.invalid || this.task.custom_class.includes('expanded')) return;
             console.log('draw_relation_dots', this);
             const bar = this.$bar;
             const dot_diameter = 8;
@@ -749,12 +749,11 @@ var Gantt = (function () {
                                     },
                                     0
                                 );
-                                console.log('delay', delay);
                             const valid_x = x_of_end_parents.reduce(
                                 (prev, curr) => {
                                     return (x =
                                         curr +
-                                        gantt_chart.options.column_width * delay);
+                                        this.gantt.options.column_width * delay);
                                 },
                                 x
                             );
@@ -1359,8 +1358,7 @@ var Gantt = (function () {
                 });
                 line.addEventListener('click', () => {
                     const parent_bar = line.parentNode.dataset.from;
-                    console.log(parent_bar);
-                    console.log(this.to_task.task.dependencies);
+                    console.log(this);
                     const index_of_task =
                         this.to_task.task.dependencies.indexOf(parent_bar);
                     console.log(index_of_task);
@@ -1369,7 +1367,19 @@ var Gantt = (function () {
                         index_of_task,
                         1
                     );
-                    gantt_chart.refresh(gantt_chart.tasks);
+                    this.to_task.task.relationship_options.hard.splice(
+                        index_of_task,
+                        1
+                    );
+                    this.to_task.task.relationship_options.asap.splice(
+                        index_of_task,
+                        1
+                    );
+                    this.to_task.task.relationship_options.delay.splice(
+                        index_of_task,
+                        1
+                    );
+                    console.log('arrow deleted');
                 });
             });
             this.lines.forEach((line) => {

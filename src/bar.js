@@ -32,8 +32,8 @@ export default class Bar {
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
-                this.duration *
-                (this.task.progress / 100) || 0;
+            this.duration *
+            (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id,
@@ -163,7 +163,7 @@ export default class Bar {
     }
 
     draw_relation_dots() {
-        if (this.invalid) return;
+        if (this.invalid || this.task.custom_class.includes('expanded')) return;
         console.log('draw_relation_dots', this);
         const bar = this.$bar;
         const dot_diameter = 8;
@@ -289,12 +289,11 @@ export default class Bar {
                                 },
                                 0
                             );
-                            console.log('delay', delay);
                         const valid_x = x_of_end_parents.reduce(
                             (prev, curr) => {
                                 return (x =
                                     curr +
-                                    gantt_chart.options.column_width * delay);
+                                    this.gantt.options.column_width * delay);
                             },
                             x
                         );

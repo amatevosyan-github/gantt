@@ -376,8 +376,7 @@ export default class Arrow {
             });
             line.addEventListener('click', () => {
                 const parent_bar = line.parentNode.dataset.from;
-                console.log(parent_bar);
-                console.log(this.to_task.task.dependencies);
+                console.log(this);
                 const index_of_task =
                     this.to_task.task.dependencies.indexOf(parent_bar);
                 console.log(index_of_task);
@@ -386,7 +385,19 @@ export default class Arrow {
                     index_of_task,
                     1
                 );
-                gantt_chart.refresh(gantt_chart.tasks);
+                this.to_task.task.relationship_options.hard.splice(
+                    index_of_task,
+                    1
+                );
+                this.to_task.task.relationship_options.asap.splice(
+                    index_of_task,
+                    1
+                );
+                this.to_task.task.relationship_options.delay.splice(
+                    index_of_task,
+                    1
+                );
+                console.log('arrow deleted');
             });
         });
         this.lines.forEach((line) => {
