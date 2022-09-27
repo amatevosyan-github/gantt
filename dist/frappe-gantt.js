@@ -2297,7 +2297,7 @@ var Gantt = (function () {
                         this.get_task(child_bar_id),
                         new_relation,
                     ]);
-                    // this.refresh(this.tasks);
+                    this.refresh(this.tasks);
                 }
             });
 
