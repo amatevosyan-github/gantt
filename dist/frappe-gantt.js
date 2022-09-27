@@ -1361,28 +1361,33 @@ var Gantt = (function () {
                 });
                 line.addEventListener('click', () => {
                     const parent_bar = line.parentNode.dataset.from;
-                    console.log(this);
+                    const child_bar = line.parentNode.dataset.to;
                     const index_of_task =
                         this.to_task.task.dependencies.indexOf(parent_bar);
-                    console.log(index_of_task);
-                    this.to_task.task.dependencies.splice(index_of_task, 1);
-                    this.to_task.task.relationship_options.type.splice(
-                        index_of_task,
-                        1
-                    );
-                    this.to_task.task.relationship_options.hard.splice(
-                        index_of_task,
-                        1
-                    );
-                    this.to_task.task.relationship_options.asap.splice(
-                        index_of_task,
-                        1
-                    );
-                    this.to_task.task.relationship_options.delay.splice(
-                        index_of_task,
-                        1
-                    );
-                    console.log('arrow deleted');
+                        this.trigger_event('open_popup_arrow', [
+                            parent_bar,
+                            child_bar,
+                            index_of_task,
+                        ]);
+
+                    // this.to_task.task.dependencies.splice(index_of_task, 1);
+                    // this.to_task.task.relationship_options.type.splice(
+                    //     index_of_task,
+                    //     1
+                    // );
+                    // this.to_task.task.relationship_options.hard.splice(
+                    //     index_of_task,
+                    //     1
+                    // );
+                    // this.to_task.task.relationship_options.asap.splice(
+                    //     index_of_task,
+                    //     1
+                    // );
+                    // this.to_task.task.relationship_options.delay.splice(
+                    //     index_of_task,
+                    //     1
+                    // );
+
                 });
             });
             this.lines.forEach((line) => {
@@ -2296,7 +2301,7 @@ var Gantt = (function () {
                         this.get_task(child_bar_id),
                         new_relation,
                     ]);
-                    this.refresh(this.tasks);
+                    // this.refresh(this.tasks);
                 }
             });
 
