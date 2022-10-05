@@ -623,7 +623,7 @@ var Gantt = (function () {
         }
 
         draw_relation_dots() {
-            if (this.invalid) return; //|| this.task.custom_class.includes('expanded')
+            if (this.invalid || this.task.custom_class.includes('expanded')) return;
             const bar = this.$bar;
             const dot_diameter = 8;
 
