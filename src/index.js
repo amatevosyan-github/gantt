@@ -660,7 +660,6 @@ export default class Gantt {
             this.options.popup_trigger,
             '.grid-row, .grid-header',
             () => {
-                console.log('bind_grid_click');
                 this.unselect_all();
                 this.hide_popup();
             }
@@ -722,7 +721,6 @@ export default class Gantt {
                     $bar.owidth = $bar.getWidth();
                     $bar.finaldx = 0;
                 });
-                console.log(bars);
             }
         );
 

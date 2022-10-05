@@ -32,8 +32,8 @@ export default class Bar {
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
-            this.duration *
-            (this.task.progress / 100) || 0;
+                this.duration *
+                (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id,
@@ -163,7 +163,7 @@ export default class Bar {
     }
 
     draw_relation_dots() {
-        if (this.invalid || this.task.custom_class.includes('expanded')) return;
+        if (this.invalid) return; //|| this.task.custom_class.includes('expanded')
         const bar = this.$bar;
         const dot_diameter = 8;
 
@@ -254,21 +254,23 @@ export default class Bar {
         const bar = this.$bar;
 
         if (x) {
-            // get all x values of parent task
-            const xs = this.task.dependencies.map((dep) => {
-                return this.gantt.get_bar(dep).$bar.getX();
-            });
-            // get all x + width values of parent task
+            // get all x + width (end of bars) values of parent task
             const x_of_end_parents = this.task.dependencies.map((dep) => {
                 return (
                     this.gantt.get_bar(dep).$bar.getX() +
                     this.gantt.get_bar(dep).$bar.getWidth()
                 );
             });
+            x_of_end_parents.sort((a, b) => a - b);
+
             // child task must not go before parent
             if (this.task.relationship_options.hard.includes(true)) {
                 if (this.task.relationship_options.type.includes('SS')) {
-                    console.log(this.task.dependencies);
+                    // get all x values (start task bar) of parent task
+                    const xs = this.task.dependencies.map((dep) => {
+                        return this.gantt.get_bar(dep).$bar.getX();
+                    });
+
                     const valid_x = xs.reduce((prev, curr) => {
                         return x >= curr;
                     }, x);
@@ -278,21 +280,35 @@ export default class Bar {
                     }
                 }
                 if (this.task.relationship_options.type.includes('FS')) {
-                    if (this.task.relationship_options.asap.includes(true)) {
-                        const delay =
-                            this.task.relationship_options.delay.reduce(
-                                (prev, curr) => {
-                                    if (curr >= prev) {
-                                        return curr;
-                                    }
-                                },
-                                0
+                    // get all x + width (end of bars) values of parent task
+                    const x_of_end_parents = this.task.dependencies.map(
+                        (dep) => {
+                            return (
+                                this.gantt.get_bar(dep).$bar.getX() +
+                                this.gantt.get_bar(dep).$bar.getWidth()
                             );
+                        }
+                    );
+                    x_of_end_parents.sort((a, b) => a - b);
+                    if (this.task.relationship_options.asap.includes(true)) {
+                        // get all x + width (end of bars) values of parent task
+                        const x_of_end_parents = this.task.dependencies.map(
+                            (dep, index) => {
+                                return (
+                                    this.gantt.get_bar(dep).$bar.getX() +
+                                    this.gantt.get_bar(dep).$bar.getWidth() +
+                                    this.task.relationship_options.delay[
+                                        index
+                                    ] *
+                                        this.gantt.options.column_width
+                                );
+                            }
+                        );
+                        x_of_end_parents.sort((a, b) => a - b);
+
                         const valid_x = x_of_end_parents.reduce(
                             (prev, curr) => {
-                                return (x =
-                                    curr +
-                                    this.gantt.options.column_width * delay);
+                                return (x = curr);
                             },
                             x
                         );
@@ -314,20 +330,9 @@ export default class Bar {
                     }
                 }
                 if (this.task.relationship_options.type.includes('FF')) {
-                    console.log('x_of_end_parents', x_of_end_parents);
-                    console.log(
-                        'x + this.$bar.getWidth()',
-                        x + this.$bar.getWidth()
-                    );
                     const valid_x = x_of_end_parents.reduce((prev, curr) => {
-                        console.log('curr', curr);
-                        console.log(
-                            'curr >= x + this.$bar.getWidth()',
-                            curr >= x + this.$bar.getWidth()
-                        );
                         return curr >= x + this.$bar.getWidth();
                     }, x);
-                    console.log('valid_x', valid_x);
                     if (!valid_x) {
                         width = null;
                         return;
@@ -513,7 +518,6 @@ export default class Bar {
     }
 
     update_arrow_position() {
-        console.log(this.arrows);
         this.arrows = this.arrows || [];
         for (let arrow of this.arrows) {
             arrow.update();
