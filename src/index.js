@@ -42,7 +42,7 @@ export default class Gantt {
         } else {
             throw new TypeError(
                 'Frappé Gantt only supports usage of a string CSS selector,' +
-                    " HTML DOM element or SVG DOM element for the 'element' parameter"
+                " HTML DOM element or SVG DOM element for the 'element' parameter"
             );
         }
 
@@ -145,6 +145,21 @@ export default class Gantt {
                 task.dependencies = deps;
             }
 
+            // relationship_types
+            if (
+                typeof task.relationship_options.type === 'string' ||
+                !task.relationship_options.type
+            ) {
+                let relationship_types = [];
+                if (task.relationship_options.type) {
+                    relationship_types = task.relationship_options.type
+                        .split(',')
+                        .map((d) => d.trim())
+                        .filter((d) => d);
+                }
+                task.relationship_options.type = relationship_types;
+            }
+
             // uids
             if (!task.id) {
                 task.id = generate_id(task);
@@ -175,7 +190,6 @@ export default class Gantt {
         this.update_view_scale(mode);
         this.setup_dates();
         this.render();
-        this.hide_popup();
         // fire viewmode_change event
         this.trigger_event('view_change', [mode]);
     }
@@ -308,7 +322,7 @@ export default class Gantt {
             this.options.header_height +
             this.options.padding +
             (this.options.bar_height + this.options.padding) *
-                this.tasks.length;
+            this.tasks.length;
 
         createSVG('rect', {
             x: 0,
@@ -428,7 +442,7 @@ export default class Gantt {
             const width = this.options.column_width;
             const height =
                 (this.options.bar_height + this.options.padding) *
-                    this.tasks.length +
+                this.tasks.length +
                 this.options.header_height +
                 this.options.padding / 2;
 
@@ -515,10 +529,10 @@ export default class Gantt {
                 date.getDate() !== last_date.getDate()
                     ? date.getMonth() !== last_date.getMonth()
                         ? date_utils.format(
-                              date,
-                              'D MMM',
-                              this.options.language
-                          )
+                            date,
+                            'D MMM',
+                            this.options.language
+                        )
                         : date_utils.format(date, 'D', this.options.language)
                     : '',
             Day_upper:
@@ -586,10 +600,12 @@ export default class Gantt {
                 .map((task_id) => {
                     const dependency = this.get_task(task_id);
                     if (!dependency) return;
+                    let task_index = task.dependencies.indexOf(task_id);
                     const arrow = new Arrow(
                         this,
                         this.bars[dependency._index], // from_task
-                        this.bars[task._index] // to_task
+                        this.bars[task._index], // to_task
+                        task.relationship_options.type[task_index]
                     );
                     this.layers.arrow.appendChild(arrow.element);
                     return arrow;
@@ -632,7 +648,7 @@ export default class Gantt {
 
         const scroll_pos =
             (hours_before_first_task / this.options.step) *
-                this.options.column_width -
+            this.options.column_width -
             this.options.column_width;
 
         parent_element.scrollLeft = scroll_pos;
@@ -658,48 +674,55 @@ export default class Gantt {
         let is_resizing_right = false;
         let parent_bar_id = null;
         let bars = []; // instanceof Bar
+        let new_relation = '';
         this.bar_being_dragged = null;
 
         function action_in_progress() {
             return is_dragging || is_resizing_left || is_resizing_right;
         }
 
-        $.on(this.$svg, 'mousedown', '.bar-wrapper, .handle', (e, element) => {
-            const bar_wrapper = $.closest('.bar-wrapper', element);
-            if (element.classList.contains('left')) {
-                is_resizing_left = true;
-            } else if (element.classList.contains('right')) {
-                is_resizing_right = true;
-            } else if (element.classList.contains('bar-wrapper')) {
-                if(element.classList.contains('expandable'))  {
-                    //
-                } else {
-                   is_dragging = true;
-               }
+        $.on(
+            this.$svg,
+            'mousedown',
+            '.bar-wrapper, .handle, .dot',
+            (e, element) => {
+                const bar_wrapper = $.closest('.bar-wrapper', element);
+
+                if (element.classList.contains('left')) {
+                    is_resizing_left = true;
+                } else if (element.classList.contains('right')) {
+                    is_resizing_right = true;
+                } else if (element.classList.contains('bar-wrapper')) {
+                    is_dragging = true;
+                } else if (element.classList.contains('finish')) {
+                    new_relation += 'F';
+                } else if (element.classList.contains('start')) {
+                    new_relation += 'S';
+                }
+
+                bar_wrapper.classList.add('active');
+
+                x_on_start = e.offsetX;
+                y_on_start = e.offsetY;
+
+                parent_bar_id = bar_wrapper.getAttribute('data-id');
+                const ids = [
+                    parent_bar_id,
+                    ...this.get_all_dependent_tasks(parent_bar_id),
+                ];
+                bars = ids.map((id) => this.get_bar(id));
+
+                this.bar_being_dragged = parent_bar_id;
+
+                bars.forEach((bar) => {
+                    const $bar = bar.$bar;
+                    $bar.ox = $bar.getX();
+                    $bar.oy = $bar.getY();
+                    $bar.owidth = $bar.getWidth();
+                    $bar.finaldx = 0;
+                });
             }
-
-            bar_wrapper.classList.add('active');
-
-            x_on_start = e.offsetX;
-            y_on_start = e.offsetY;
-
-            parent_bar_id = bar_wrapper.getAttribute('data-id');
-            const ids = [
-                parent_bar_id,
-                ...this.get_all_dependent_tasks(parent_bar_id),
-            ];
-            bars = ids.map((id) => this.get_bar(id));
-
-            this.bar_being_dragged = parent_bar_id;
-
-            bars.forEach((bar) => {
-                const $bar = bar.$bar;
-                $bar.ox = $bar.getX();
-                $bar.oy = $bar.getY();
-                $bar.owidth = $bar.getWidth();
-                $bar.finaldx = 0;
-            });
-        });
+        );
 
         $.on(this.$svg, 'mousemove', (e) => {
             if (!action_in_progress()) return;
@@ -724,7 +747,12 @@ export default class Gantt {
                 } else if (is_resizing_right) {
                     if (parent_bar_id === bar.task.id) {
                         bar.update_bar_position({
+                            x: $bar.ox,
                             width: $bar.owidth + $bar.finaldx,
+                        });
+                    } else {
+                        bar.update_bar_position({
+                            x: $bar.ox,
                         });
                     }
                 } else if (is_dragging) {
@@ -741,6 +769,7 @@ export default class Gantt {
             is_dragging = false;
             is_resizing_left = false;
             is_resizing_right = false;
+            new_relation = '';
         });
 
         $.on(this.$svg, 'mouseup', (e) => {
@@ -751,6 +780,47 @@ export default class Gantt {
                 bar.date_changed();
                 bar.set_action_completed();
             });
+        });
+        // new depen
+        $.on(this.$svg, 'mouseup', '.dot', (e, element) => {
+            if (element.classList.contains('finish')) {
+                new_relation += 'F';
+            } else if (element.classList.contains('start')) {
+                new_relation += 'S';
+            }
+
+            const bar_wrapper = $.closest('.bar-wrapper', element);
+            let child_bar_id = bar_wrapper.getAttribute('data-id');
+            let child_bar = this.get_task(child_bar_id);
+            let parent_bar = this.get_task(parent_bar_id);
+            // проверка на то, что такая связь уже есть
+            if (child_bar.dependencies.indexOf(parent_bar.id) !== -1) {
+                console.log('такая связь уже есть');
+                return false;
+            }
+            if (child_bar_id === parent_bar_id) {
+                return false;
+            }
+
+            if (
+                ['FS'].includes(new_relation) && //'SS', 'FF',
+                !this.get_all_dependent_tasks(child_bar_id).includes(
+                    parent_bar_id
+                )
+            ) {
+                child_bar.dependencies.push(parent_bar_id);
+                child_bar.relationship_options.type.push(new_relation);
+                child_bar.relationship_options.hard.push(true);
+                child_bar.relationship_options.delay.push(0);
+                child_bar.relationship_options.asap.push(true);
+
+                this.trigger_event('new_depndency', [
+                    this.get_task(parent_bar_id),
+                    this.get_task(child_bar_id),
+                    new_relation,
+                ]);
+                this.refresh(this.tasks);
+            }
         });
 
         this.bind_bar_progress();

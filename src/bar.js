@@ -32,8 +32,8 @@ export default class Bar {
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
-            this.duration *
-            (this.task.progress / 100) || 0;
+                this.duration *
+                (this.task.progress / 100) || 0;
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id,
@@ -44,6 +44,10 @@ export default class Bar {
         });
         this.handle_group = createSVG('g', {
             class: 'handle-group',
+            append_to: this.group,
+        });
+        this.relation_group = createSVG('g', {
+            class: 'relation-group',
             append_to: this.group,
         });
     }
@@ -68,6 +72,7 @@ export default class Bar {
 
     draw() {
         this.draw_bar();
+        this.draw_relation_dots();
         this.draw_progress_bar();
         this.draw_label();
         this.draw_resize_handles();
@@ -85,6 +90,7 @@ export default class Bar {
             append_to: this.bar_group,
         });
 
+        animateSVG(this.$bar, 'width', 0, this.width);
 
         if (this.invalid) {
             this.$bar.classList.add('bar-invalid');
@@ -123,27 +129,27 @@ export default class Bar {
         if (this.invalid) return;
 
         const bar = this.$bar;
-        const handle_width = 3;
+        const handle_width = 8;
 
         createSVG('rect', {
-            x: bar.getX() - 1,
-            y: bar.getY() + 1,
-            width: handle_width,
-            height: this.height - 2,
-            rx: this.corner_radius,
-            ry: this.corner_radius,
-            class: 'handle left',
-            append_to: this.handle_group,
-        });
-
-        createSVG('rect', {
-            x: bar.getX() + bar.getWidth() - 3,
+            x: bar.getX() + bar.getWidth() - 9,
             y: bar.getY() + 1,
             width: handle_width,
             height: this.height - 2,
             rx: this.corner_radius,
             ry: this.corner_radius,
             class: 'handle right',
+            append_to: this.handle_group,
+        });
+
+        createSVG('rect', {
+            x: bar.getX() + 1,
+            y: bar.getY() + 1,
+            width: handle_width,
+            height: this.height - 2,
+            rx: this.corner_radius,
+            ry: this.corner_radius,
+            class: 'handle left',
             append_to: this.handle_group,
         });
 
@@ -154,6 +160,34 @@ export default class Bar {
                 append_to: this.handle_group,
             });
         }
+    }
+
+    draw_relation_dots() {
+        if (this.invalid || this.task.custom_class.includes('expanded')) return;
+        const bar = this.$bar;
+        const dot_diameter = 8;
+
+        createSVG('rect', {
+            x: bar.getX() + bar.getWidth() + 4,
+            y: bar.getY() + bar.getHeight() / 2 - dot_diameter / 2,
+            width: dot_diameter,
+            height: dot_diameter,
+            rx: '50%',
+            ry: '50%',
+            class: 'dot finish',
+            append_to: this.relation_group,
+        });
+
+        createSVG('rect', {
+            x: bar.getX() - dot_diameter - 4,
+            y: bar.getY() + bar.getHeight() / 2 - dot_diameter / 2,
+            width: dot_diameter,
+            height: dot_diameter,
+            rx: '50%',
+            ry: '50%',
+            class: 'dot start',
+            append_to: this.relation_group,
+        });
     }
 
     get_progress_polygon_points() {
@@ -179,8 +213,7 @@ export default class Bar {
                 // just finished a move action, wait for a few seconds
                 return;
             }
-
-            this.show_popup();
+            this.show_popup(e);
             this.gantt.unselect_all();
             this.group.classList.add('active');
         });
@@ -190,14 +223,12 @@ export default class Bar {
                 // just finished a move action, wait for a few seconds
                 return;
             }
-
             this.gantt.trigger_event('click', [this.task]);
         });
     }
 
-    show_popup() {
+    show_popup(e) {
         if (this.gantt.bar_being_dragged) return;
-
         const start_date = date_utils.format(
             this.task._start,
             'MMM D',
@@ -209,8 +240,12 @@ export default class Bar {
             this.gantt.options.language
         );
         const subtitle = start_date + ' - ' + end_date;
+        const posX = e.offsetX || e.layerX;
+        const posY = e.offsetY  || e.layerY;
 
         this.gantt.show_popup({
+            x: posX,
+            y: posY,
             target_element: this.$bar,
             title: this.task.name,
             subtitle: subtitle,
@@ -218,33 +253,104 @@ export default class Bar {
         });
     }
 
-    update_bar_position({ x = null, width = null }) {
+    update_bar_position({ x = null, width = null, handle = null }) {
         const bar = this.$bar;
+
         if (x) {
-            // get all x values of parent task
-            const xs = this.task.dependencies.map((dep) => {
-                return this.gantt.get_bar(dep).$bar.getX();
+            // get all x + width (end of bars) values of parent task
+            const x_of_end_parents = this.task.dependencies.map((dep) => {
+                return (
+                    this.gantt.get_bar(dep).$bar.getX() +
+                    this.gantt.get_bar(dep).$bar.getWidth()
+                );
             });
+            x_of_end_parents.sort((a, b) => a - b);
+
             // child task must not go before parent
-            // const valid_x = xs.reduce((prev, curr) => {
-            //     return x >= curr;
-            // }, x);
-            // if (!valid_x) {
-            //     width = null;
-            //     return;
-            // }
+            if (this.task.relationship_options.hard.includes(true)) {
+                if (this.task.relationship_options.type.includes('SS')) {
+                    // get all x values (start task bar) of parent task
+                    const xs = this.task.dependencies.map((dep) => {
+                        return this.gantt.get_bar(dep).$bar.getX();
+                    });
+
+                    const valid_x = xs.reduce((prev, curr) => {
+                        return x >= curr;
+                    }, x);
+                    if (!valid_x) {
+                        width = null;
+                        return;
+                    }
+                }
+                if (this.task.relationship_options.type.includes('FS')) {
+                    // get all x + width (end of bars) values of parent task
+                    const x_of_end_parents = this.task.dependencies.map(
+                        (dep) => {
+                            return (
+                                this.gantt.get_bar(dep).$bar.getX() +
+                                this.gantt.get_bar(dep).$bar.getWidth()
+                            );
+                        }
+                    );
+                    x_of_end_parents.sort((a, b) => a - b);
+                    if (this.task.relationship_options.asap.includes(true)) {
+                        // get all x + width (end of bars) values of parent task
+                        const x_of_end_parents = this.task.dependencies.map(
+                            (dep, index) => {
+                                return (
+                                    this.gantt.get_bar(dep).$bar.getX() +
+                                    this.gantt.get_bar(dep).$bar.getWidth() +
+                                    this.task.relationship_options.delay[
+                                        index
+                                    ] *
+                                        this.gantt.options.column_width
+                                );
+                            }
+                        );
+                        x_of_end_parents.sort((a, b) => a - b);
+
+                        const valid_x = x_of_end_parents.reduce(
+                            (prev, curr) => {
+                                return (x = curr);
+                            },
+                            x
+                        );
+                        if (!valid_x) {
+                            width = null;
+                            return;
+                        }
+                    } else {
+                        const valid_x = x_of_end_parents.reduce(
+                            (prev, curr) => {
+                                return x >= curr;
+                            },
+                            x
+                        );
+                        if (!valid_x) {
+                            width = null;
+                            return;
+                        }
+                    }
+                }
+                if (this.task.relationship_options.type.includes('FF')) {
+                    const valid_x = x_of_end_parents.reduce((prev, curr) => {
+                        return curr >= x + this.$bar.getWidth();
+                    }, x);
+                    if (!valid_x) {
+                        width = null;
+                        return;
+                    }
+                }
+            }
+
             this.update_attr(bar, 'x', x);
         }
-        const divider = {
-            Month: 30,
-            Week: 7,
-            Day: 1,
-        };
-        if (width && width >= this.gantt.options.column_width / divider[this.gantt.options.view_mode]) { // минимальный шаг всегда один день
+        if (width && width >= this.gantt.options.column_width) {
             this.update_attr(bar, 'width', width);
         }
         this.update_label_position();
         this.update_handle_position();
+        this.update_dots_position();
         this.update_progressbar_position();
         this.update_arrow_position();
     }
@@ -264,7 +370,6 @@ export default class Bar {
         }
 
         if (!changed) return;
-
         this.gantt.trigger_event('date_change', [
             this.task,
             new_start_date,
@@ -385,7 +490,7 @@ export default class Bar {
 
         if (label.getBBox().width > bar.getWidth()) {
             label.classList.add('big');
-            label.setAttribute('x', bar.getX() + bar.getWidth() + 5);
+            label.setAttribute('x', bar.getX() + bar.getWidth() + 20);
         } else {
             label.classList.remove('big');
             label.setAttribute('x', bar.getX() + bar.getWidth() / 2);
@@ -396,13 +501,23 @@ export default class Bar {
         const bar = this.$bar;
         this.handle_group
             .querySelector('.handle.left')
-            .setAttribute('x', bar.getX() - 1);
+            .setAttribute('x', bar.getX() + 1);
         this.handle_group
             .querySelector('.handle.right')
-            .setAttribute('x', bar.getEndX() - 3);
+            .setAttribute('x', bar.getEndX() - 9);
         const handle = this.group.querySelector('.handle.progress');
         handle &&
             handle.setAttribute('points', this.get_progress_polygon_points());
+    }
+
+    update_dots_position() {
+        const bar = this.$bar;
+        this.relation_group
+            .querySelector('.dot.start')
+            .setAttribute('x', bar.getX() - 8 - 4); //8 - dot_radius
+        this.relation_group
+            .querySelector('.dot.finish')
+            .setAttribute('x', bar.getX() + bar.getWidth() + 4);
     }
 
     update_arrow_position() {

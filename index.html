@@ -26,13 +26,20 @@
 		<div class="gantt-target"></div>
 	</div>
 	<script>
-		var tasks = [
+var tasks = [
 			{
 				start: '2018-10-01',
 				end: '2018-10-08',
 				name: 'Redesign website',
 				id: "Task 0",
-				progress: 20
+				progress: 20,
+				custom_class: 'bar-milestone',
+				relationship_options: {
+					type: '',
+					hard: [,],
+					delay: [,],
+					asap: [,],
+				}
 			},
 			{
 				start: '2018-10-03',
@@ -40,7 +47,14 @@
 				name: 'Write new content',
 				id: "Task 1",
 				progress: 5,
-				dependencies: 'Task 0'
+				dependencies: 'Task 0',
+				custom_class: 'bar-milestone',
+				relationship_options: {
+					type: 'FS',
+					hard: [false,],
+					delay: [0,],
+					asap: [true,],
+				}
 			},
 			{
 				start: '2018-10-04',
@@ -48,7 +62,14 @@
 				name: 'Apply new styles',
 				id: "Task 2",
 				progress: 10,
-				dependencies: 'Task 1'
+				dependencies: 'Task 0',
+				custom_class: 'bar-milestone',
+				relationship_options: {
+					type: 'FS',
+					hard: [true,],
+					delay: [0,],
+					asap: [false,],
+				}
 			},
 			{
 				start: '2018-10-08',
@@ -56,7 +77,15 @@
 				name: 'Review',
 				id: "Task 3",
 				progress: 5,
-				dependencies: 'Task 2'
+				custom_class: 'bar-milestone',
+				dependencies: 'Task 0, Task 4',
+				relationship_options: {
+					type: 'FS, FS',
+					hard: [true, true],
+					delay: [2, 4],
+					asap: [true, true],
+				}
+
 			},
 			{
 				start: '2018-10-08',
@@ -64,7 +93,13 @@
 				name: 'Deploy',
 				id: "Task 4",
 				progress: 0,
-				dependencies: 'Task 2'
+				custom_class: 'bar-milestone',
+				relationship_options: {
+					type: '',
+					hard: [],
+					delay: [],
+					asap: [],
+				}
 			},
 			{
 				start: '2018-10-11',
@@ -72,20 +107,18 @@
 				name: 'Go Live!',
 				id: "Task 5",
 				progress: 0,
-				dependencies: 'Task 4',
-				custom_class: 'bar-milestone'
+				custom_class: 'bar-milestone',
+				relationship_options: {
+					type: '',
+					hard: [],
+					delay: [],
+					asap: [],
+				}
 			},
-			{
-				start: '2014-01-05',
-				end: '2019-10-12',
-				name: 'Long term task',
-				id: "Task 6",
-				progress: 0
-			}
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
 			on_click: function (task) {
-				console.log(task);
+
 			},
 			on_date_change: function(task, start, end) {
 				console.log(task, start, end);
@@ -96,10 +129,15 @@
 			on_view_change: function(mode) {
 				console.log(mode);
 			},
-			view_mode: 'Month',
+			on_open_popup_arrow: function (parent_bar_id, child_bar_id, index_of_task) {
+                          console.log(parent_bar_id);
+                        },
+			on_delete_arrow: function(mes) {
+				console.log(mes);
+			},
+			view_mode: 'Day',
 			language: 'en'
 		});
-		console.log(gantt_chart);
 	</script>
 </body>
 </html>
