@@ -213,7 +213,7 @@ export default class Bar {
                 // just finished a move action, wait for a few seconds
                 return;
             }
-            this.show_popup();
+            this.show_popup(e);
             this.gantt.unselect_all();
             this.group.classList.add('active');
         });
@@ -227,9 +227,8 @@ export default class Bar {
         });
     }
 
-    show_popup() {
+    show_popup(e) {
         if (this.gantt.bar_being_dragged) return;
-
         const start_date = date_utils.format(
             this.task._start,
             'MMM D',
@@ -241,8 +240,12 @@ export default class Bar {
             this.gantt.options.language
         );
         const subtitle = start_date + ' - ' + end_date;
+        const posX = e.offsetX || e.layerX;
+        const posY = e.offsetY  || e.layerY;
 
         this.gantt.show_popup({
+            x: posX,
+            y: posY,
             target_element: this.$bar,
             title: this.task.name,
             subtitle: subtitle,

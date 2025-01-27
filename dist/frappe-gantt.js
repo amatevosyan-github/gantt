@@ -673,7 +673,7 @@ var Gantt = (function () {
                     // just finished a move action, wait for a few seconds
                     return;
                 }
-                this.show_popup();
+                this.show_popup(e);
                 this.gantt.unselect_all();
                 this.group.classList.add('active');
             });
@@ -687,9 +687,8 @@ var Gantt = (function () {
             });
         }
 
-        show_popup() {
+        show_popup(e) {
             if (this.gantt.bar_being_dragged) return;
-
             const start_date = date_utils.format(
                 this.task._start,
                 'MMM D',
@@ -701,8 +700,12 @@ var Gantt = (function () {
                 this.gantt.options.language
             );
             const subtitle = start_date + ' - ' + end_date;
+            const posX = e.offsetX || e.layerX;
+            const posY = e.offsetY  || e.layerY;
 
             this.gantt.show_popup({
+                x: posX,
+                y: posY,
                 target_element: this.$bar,
                 title: this.task.name,
                 subtitle: subtitle,
@@ -1457,26 +1460,20 @@ var Gantt = (function () {
                 this.subtitle.innerHTML = options.subtitle;
                 this.parent.style.width = this.parent.clientWidth + 'px';
             }
-
-            // set position
-            let position_meta;
             if (target_element instanceof HTMLElement) {
-                position_meta = target_element.getBoundingClientRect();
+                target_element.getBoundingClientRect();
             } else if (target_element instanceof SVGElement) {
-                position_meta = options.target_element.getBBox();
+                options.target_element.getBBox();
             }
-
             if (options.position === 'left') {
-                this.parent.style.left =
-                    position_meta.x + (position_meta.width + 10) + 'px';
-                this.parent.style.top = position_meta.y + 'px';
+                this.parent.style.left = `${options.x + 10}px`;
+                 this.parent.style.top = `${options.y - 10}px`;
 
                 this.pointer.style.transform = 'rotateZ(90deg)';
                 this.pointer.style.left = '-7px';
                 this.pointer.style.top = '2px';
             }
 
-            // show
             this.parent.style.opacity = 1;
         }
 

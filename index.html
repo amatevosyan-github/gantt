@@ -33,6 +33,7 @@ var tasks = [
 				name: 'Redesign website',
 				id: "Task 0",
 				progress: 20,
+				custom_class: 'bar-milestone',
 				relationship_options: {
 					type: '',
 					hard: [,],
@@ -47,6 +48,7 @@ var tasks = [
 				id: "Task 1",
 				progress: 5,
 				dependencies: 'Task 0',
+				custom_class: 'bar-milestone',
 				relationship_options: {
 					type: 'FS',
 					hard: [false,],
@@ -61,6 +63,7 @@ var tasks = [
 				id: "Task 2",
 				progress: 10,
 				dependencies: 'Task 0',
+				custom_class: 'bar-milestone',
 				relationship_options: {
 					type: 'FS',
 					hard: [true,],
@@ -74,6 +77,7 @@ var tasks = [
 				name: 'Review',
 				id: "Task 3",
 				progress: 5,
+				custom_class: 'bar-milestone',
 				dependencies: 'Task 0, Task 4',
 				relationship_options: {
 					type: 'FS, FS',
@@ -89,6 +93,7 @@ var tasks = [
 				name: 'Deploy',
 				id: "Task 4",
 				progress: 0,
+				custom_class: 'bar-milestone',
 				relationship_options: {
 					type: '',
 					hard: [],
@@ -113,7 +118,7 @@ var tasks = [
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
 			on_click: function (task) {
-				console.log(task);
+
 			},
 			on_date_change: function(task, start, end) {
 				console.log(task, start, end);
@@ -124,13 +129,15 @@ var tasks = [
 			on_view_change: function(mode) {
 				console.log(mode);
 			},
+			on_open_popup_arrow: function (parent_bar_id, child_bar_id, index_of_task) {
+                          console.log(parent_bar_id);
+                        },
 			on_delete_arrow: function(mes) {
 				console.log(mes);
 			},
 			view_mode: 'Day',
 			language: 'en'
 		});
-
 	</script>
 </body>
 </html>

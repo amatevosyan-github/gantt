@@ -149,6 +149,10 @@ $handle-color: #ddd !default;
 	}
 	.upper-text {
 		fill: $text-light;
+		position: absolute;
+		width: fit-content;
+		font-weight: 500;
+		font-size: 14px;
 	}
 	.lower-text {
 		fill: $text-color;

@@ -115,6 +115,10 @@
 }
 .gantt .upper-text {
   fill: #555;
+  position: absolute;
+  width: fit-content;
+  font-weight: 500;
+  font-size: 14px;
 }
 .gantt .lower-text {
   fill: #333;
