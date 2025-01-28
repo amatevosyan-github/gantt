@@ -23,22 +23,23 @@
   stroke-width: 0.4;
 }
 .gantt .today-highlight {
-  fill: #fcf8e3;
+  fill: rgba(14, 25, 86, 0.15);
   opacity: 0.5;
 }
 .gantt .arrow {
   fill: none;
   stroke: #666;
-  stroke-width: 1;
+  stroke-width: 2;
 }
 .gantt .arrow g.hover {
-  stroke-width: 2;
+  stroke-width: 2.2;
+  stroke: #444;
 }
 .gantt .arrow g.hover line {
   cursor: pointer;
 }
 .gantt .bar {
-  fill: #b8c2cc;
+  fill: #727aa7;
   stroke: #8D99A6;
   stroke-width: 0;
   transition: stroke-width 0.3s ease;
@@ -83,14 +84,14 @@
   stroke-opacity: 0;
 }
 .gantt .dot:hover {
-  fill: tomato;
+  fill: rgba(14, 25, 86, 0.85);
 }
 .gantt .bar-wrapper {
   cursor: pointer;
   outline: none;
 }
 .gantt .bar-wrapper:hover .bar {
-  fill: #a9b5c1;
+  fill: #626b9d;
 }
 .gantt .bar-wrapper:hover .bar-progress {
   fill: #8a8aff;
@@ -104,7 +105,7 @@
   transform: translate(0);
 }
 .gantt .bar-wrapper.active .bar {
-  fill: #a9b5c1;
+  fill: #626b9d;
 }
 .gantt .bar-wrapper.active .bar-progress {
   fill: #8a8aff;
