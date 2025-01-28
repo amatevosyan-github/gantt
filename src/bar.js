@@ -512,12 +512,12 @@ export default class Bar {
 
     update_dots_position() {
         const bar = this.$bar;
-        this.relation_group
-            .querySelector('.dot.start')
-            .setAttribute('x', bar.getX() - 8 - 4); //8 - dot_radius
-        this.relation_group
-            .querySelector('.dot.finish')
-            .setAttribute('x', bar.getX() + bar.getWidth() + 4);
+        let letf_dot = this.relation_group.querySelector('.dot.start');
+        let right_dot = this.relation_group.querySelector('.dot.finish');
+            if(letf_dot || right_dot){
+                letf_dot.setAttribute('x', bar.getX() - 8 - 4);
+                right_dot.setAttribute('x', bar.getX() + bar.getWidth() + 4);
+            }
     }
 
     update_arrow_position() {

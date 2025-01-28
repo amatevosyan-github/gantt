@@ -341,6 +341,8 @@ var Gantt = (function () {
                 parent.appendChild(elem);
             } else if (attr === 'innerHTML') {
                 elem.innerHTML = attrs.innerHTML;
+            } else if (attr === 'clipPath') {
+                elem.setAttribute('clip-path', 'url(#' + attrs[attr] + ')');
             } else {
                 elem.setAttribute(attr, attrs[attr]);
             }
@@ -367,7 +369,7 @@ var Gantt = (function () {
         from,
         to,
         dur = '0.4s',
-        begin = '0.1s'
+        begin = '0.1s',
     ) {
         const animEl = svgElement.querySelector('animate');
         if (animEl) {
@@ -972,12 +974,12 @@ var Gantt = (function () {
 
         update_dots_position() {
             const bar = this.$bar;
-            this.relation_group
-                .querySelector('.dot.start')
-                .setAttribute('x', bar.getX() - 8 - 4); //8 - dot_radius
-            this.relation_group
-                .querySelector('.dot.finish')
-                .setAttribute('x', bar.getX() + bar.getWidth() + 4);
+            let letf_dot = this.relation_group.querySelector('.dot.start');
+            let right_dot = this.relation_group.querySelector('.dot.finish');
+                if(letf_dot || right_dot){
+                    letf_dot.setAttribute('x', bar.getX() - 8 - 4);
+                    right_dot.setAttribute('x', bar.getX() + bar.getWidth() + 4);
+                }
         }
 
         update_arrow_position() {
