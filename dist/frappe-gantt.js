@@ -1766,6 +1766,7 @@ var Gantt = (function () {
         }
 
         render() {
+            this.save_scroll_position();
             this.clear();
             this.setup_layers();
             this.make_grid();
@@ -1775,6 +1776,7 @@ var Gantt = (function () {
             this.map_arrows_on_bars();
             this.set_width();
             this.set_scroll_position();
+            this.restore_scroll_position();
             // this.bars.forEach((bar) => {
             //     const x = bar.compute_x();
             //     bar.update_bar_position({x});
