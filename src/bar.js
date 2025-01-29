@@ -127,8 +127,6 @@ export default class Bar {
     }
 
     draw_resize_handles() {
-        if (this.invalid || this.gantt.options.readonly) return;
-
         const bar = this.$bar;
         const handle_width = 5;
         this.handles = [];
@@ -157,21 +155,11 @@ export default class Bar {
                 append_to: this.handle_group,
             }),
         );
-        // if (!this.gantt.options.readonly_progress) {
-        //     const bar_progress = this.$bar_progress;
-        //     this.$handle_progress = createSVG('circle', {
-        //         cx: bar_progress.getEndX(),
-        //         cy: bar_progress.getY() + bar_progress.getHeight() / 2,
-        //         r: 4.5,
-        //         class: 'handle progress',
-        //         append_to: this.handle_group,
-        //     });
-        //     this.handles.push(this.$handle_progress);
-        // }
-
-        for (let handle of this.handles) {
-            $.on(handle, 'mouseenter', () => handle.classList.add('active'));
-            $.on(handle, 'mouseleave', () => handle.classList.remove('active'));
+        if (this.task.progress && this.task.progress < 100) {
+            this.$handle_progress = createSVG('polygon', {
+                points: this.get_progress_polygon_points().join(','),
+                class: 'handle progress',
+            })
         }
     }
 
@@ -363,7 +351,6 @@ export default class Bar {
         }
         this.update_label_position();
         this.update_handle_position();
-        this.date_changed();
         this.update_dots_position();
         this.update_progressbar_position();
         this.update_arrow_position();
@@ -512,7 +499,6 @@ export default class Bar {
     }
 
     update_handle_position() {
-        if (this.invalid || this.gantt.options.readonly) return;
         const bar = this.$bar;
         this.handle_group
             .querySelector('.handle.left')
@@ -521,7 +507,7 @@ export default class Bar {
             .querySelector('.handle.right')
             .setAttribute('x', bar.getEndX() - 6);
         const handle = this.group.querySelector('.handle.progress');
-        handle && handle.setAttribute('cx', this.$bar_progress.getEndX());
+        handle && handle.setAttribute('points', this.get_progress_polygon_points());
     }
 
     update_dots_position() {
