@@ -189,11 +189,13 @@ export default class Gantt {
     }
 
     change_view_mode(mode = this.options.view_mode) {
+        this.save_scroll_position();
         this.update_view_scale(mode);
         this.setup_dates();
         this.render();
         // fire viewmode_change event
         this.trigger_event('view_change', [mode]);
+        this.restore_scroll_position();
     }
 
     update_view_scale(view_mode) {
@@ -287,7 +289,6 @@ export default class Gantt {
     }
 
     render() {
-        this.save_scroll_position();
         this.clear();
         this.setup_layers();
         this.make_grid();
@@ -297,7 +298,6 @@ export default class Gantt {
         this.map_arrows_on_bars();
         this.set_width();
         this.set_scroll_position();
-        this.restore_scroll_position();
         // this.bars.forEach((bar) => {
         //     const x = bar.compute_x();
         //     bar.update_bar_position({x});
