@@ -2303,6 +2303,13 @@ var Gantt = (function () {
                         new_relation,
                     ]);
                     this.refresh(this.tasks);
+                    const updated_child_bar = this.get_bar(child_bar_id);
+                    if (updated_child_bar) {
+                        updated_child_bar.update_bar_position({
+                            x: updated_child_bar.$bar.getX(),
+                            width: updated_child_bar.$bar.getWidth(),
+                        });
+                    }
                 }
             });
 
