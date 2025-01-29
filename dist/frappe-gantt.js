@@ -1668,13 +1668,11 @@ var Gantt = (function () {
         }
 
         change_view_mode(mode = this.options.view_mode) {
-            this.save_scroll_position();
             this.update_view_scale(mode);
             this.setup_dates();
             this.render();
             // fire viewmode_change event
             this.trigger_event('view_change', [mode]);
-            this.restore_scroll_position();
         }
 
         update_view_scale(view_mode) {
