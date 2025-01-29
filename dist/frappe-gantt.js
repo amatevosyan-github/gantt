@@ -1787,10 +1787,10 @@ var Gantt = (function () {
             this.map_arrows_on_bars();
             this.set_width();
             this.set_scroll_position();
-            this.bars.forEach((bar) => {
-                const x = bar.compute_x();
-                bar.update_bar_position({x});
-            });
+            // this.bars.forEach((bar) => {
+            //     const x = bar.compute_x();
+            //     bar.update_bar_position({x});
+            // });
         }
 
         setup_layers() {
