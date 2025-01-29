@@ -1661,8 +1661,10 @@ var Gantt = (function () {
         }
 
         refresh(tasks) {
+            this.save_scroll_position();
             this.setup_tasks(tasks);
             this.change_view_mode();
+            this.restore_scroll_position();
         }
 
         change_view_mode(mode = this.options.view_mode) {
@@ -2479,6 +2481,18 @@ var Gantt = (function () {
                 .reduce((prev_date, cur_date) =>
                     cur_date <= prev_date ? cur_date : prev_date
                 );
+        }
+
+        save_scroll_position() {
+            const parent_element = this.$svg.parentElement;
+            if (!parent_element) return;
+            this.saved_scroll_position = parent_element.scrollLeft;
+        }
+
+        restore_scroll_position() {
+            const parent_element = this.$svg.parentElement;
+            if (!parent_element || this.saved_scroll_position === undefined) return;
+            parent_element.scrollLeft = this.saved_scroll_position;
         }
 
         /**
