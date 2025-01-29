@@ -551,6 +551,7 @@ var Gantt = (function () {
                 class: 'bar',
                 append_to: this.bar_group,
             });
+            if (this.task.color) this.$bar.style.fill = this.task.color;
 
             animateSVG(this.$bar, 'width', 0, this.width);
 
@@ -588,39 +589,51 @@ var Gantt = (function () {
         }
 
         draw_resize_handles() {
-            if (this.invalid) return;
+            if (this.invalid || this.gantt.options.readonly) return;
 
             const bar = this.$bar;
-            const handle_width = 8;
-
-            createSVG('rect', {
-                x: bar.getX() + bar.getWidth() - 9,
-                y: bar.getY() + 1,
-                width: handle_width,
-                height: this.height - 2,
-                rx: this.corner_radius,
-                ry: this.corner_radius,
-                class: 'handle right',
-                append_to: this.handle_group,
-            });
-
-            createSVG('rect', {
-                x: bar.getX() + 1,
-                y: bar.getY() + 1,
-                width: handle_width,
-                height: this.height - 2,
-                rx: this.corner_radius,
-                ry: this.corner_radius,
-                class: 'handle left',
-                append_to: this.handle_group,
-            });
-
-            if (this.task.progress && this.task.progress < 100) {
-                this.$handle_progress = createSVG('polygon', {
-                    points: this.get_progress_polygon_points().join(','),
-                    class: 'handle progress',
+            const handle_width = 5;
+            this.handles = [];
+            this.handles.push(
+                createSVG('rect', {
+                    x: bar.getEndX() - handle_width - 1,
+                    y: bar.getY() + 3,
+                    width: handle_width,
+                    height: this.height - 6,
+                    rx: this.corner_radius,
+                    ry: this.corner_radius,
+                    class: 'handle right',
                     append_to: this.handle_group,
-                });
+                }),
+            );
+
+            this.handles.push(
+                createSVG('rect', {
+                    x: bar.getX() + 1,
+                    y: bar.getY() + 3,
+                    width: handle_width,
+                    height: this.height - 6,
+                    rx: this.corner_radius,
+                    ry: this.corner_radius,
+                    class: 'handle left',
+                    append_to: this.handle_group,
+                }),
+            );
+            // if (!this.gantt.options.readonly_progress) {
+            //     const bar_progress = this.$bar_progress;
+            //     this.$handle_progress = createSVG('circle', {
+            //         cx: bar_progress.getEndX(),
+            //         cy: bar_progress.getY() + bar_progress.getHeight() / 2,
+            //         r: 4.5,
+            //         class: 'handle progress',
+            //         append_to: this.handle_group,
+            //     });
+            //     this.handles.push(this.$handle_progress);
+            // }
+
+            for (let handle of this.handles) {
+                $.on(handle, 'mouseenter', () => handle.classList.add('active'));
+                $.on(handle, 'mouseleave', () => handle.classList.remove('active'));
             }
         }
 
@@ -812,6 +825,7 @@ var Gantt = (function () {
             }
             this.update_label_position();
             this.update_handle_position();
+            this.date_changed();
             this.update_dots_position();
             this.update_progressbar_position();
             this.update_arrow_position();
@@ -960,16 +974,16 @@ var Gantt = (function () {
         }
 
         update_handle_position() {
+            if (this.invalid || this.gantt.options.readonly) return;
             const bar = this.$bar;
             this.handle_group
                 .querySelector('.handle.left')
                 .setAttribute('x', bar.getX() + 1);
             this.handle_group
                 .querySelector('.handle.right')
-                .setAttribute('x', bar.getEndX() - 9);
+                .setAttribute('x', bar.getEndX() - 6);
             const handle = this.group.querySelector('.handle.progress');
-            handle &&
-                handle.setAttribute('points', this.get_progress_polygon_points());
+            handle && handle.setAttribute('cx', this.$bar_progress.getEndX());
         }
 
         update_dots_position() {
@@ -1773,6 +1787,10 @@ var Gantt = (function () {
             this.map_arrows_on_bars();
             this.set_width();
             this.set_scroll_position();
+            this.bars.forEach((bar) => {
+                const x = bar.compute_x();
+                bar.update_bar_position({x});
+            });
         }
 
         setup_layers() {

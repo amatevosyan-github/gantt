@@ -69,7 +69,7 @@
   text-anchor: start;
 }
 .gantt .handle {
-  fill: #ddd;
+  fill: #e3e3e3;
   cursor: ew-resize;
   opacity: 0;
   visibility: hidden;
