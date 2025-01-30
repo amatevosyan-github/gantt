@@ -179,13 +179,14 @@ $handle-color: #e3e3e3 !default;
 		border-radius: 3px;
 
 		.title {
-			border-bottom: 3px solid $blue;
+			color: #e6eaec;
+			border-bottom: 3px solid #005bd9;
 			padding: 10px;
 		}
 
 		.subtitle {
 			padding: 10px;
-			color: #dfe2e5;
+			color: #e6eaec;
 		}
 
 		.pointer {

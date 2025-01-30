@@ -143,12 +143,13 @@
   border-radius: 3px;
 }
 .gantt-container .popup-wrapper .title {
-  border-bottom: 3px solid #a3a3ff;
+  color: #e6eaec;
+  border-bottom: 3px solid #005bd9;
   padding: 10px;
 }
 .gantt-container .popup-wrapper .subtitle {
   padding: 10px;
-  color: #dfe2e5;
+  color: #e6eaec;
 }
 .gantt-container .popup-wrapper .pointer {
   position: absolute;

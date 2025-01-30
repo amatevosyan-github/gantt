@@ -826,6 +826,12 @@ export default class Gantt {
                     new_relation,
                 ]);
                 this.refresh(this.tasks);
+                bars.forEach((bar) => {
+                    const $bar = bar.$bar;
+                    if (!$bar.finaldx) return;
+                    bar.date_changed();
+                    bar.set_action_completed();
+                });
                 const updated_child_bar = this.get_bar(child_bar_id);
                 if (updated_child_bar) {
                     updated_child_bar.update_bar_position({
